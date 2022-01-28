@@ -12,6 +12,10 @@ import (
 
 var l *Loga
 
+type writer struct {
+	io.Writer
+	timeFormat string
+}
 
 func (w writer) Write(b []byte) (n int, err error) {
 	return w.Writer.Write(append([]byte(time.Now().Format(w.timeFormat)), b...))
@@ -48,6 +52,7 @@ func New() (l *Loga) {
 		w: true,
 		e: true,
 	}
+
 	if runtime.GOOS == "linux" {
 		l.T.SetPrefix(blue + l.T.Prefix() + end)
 		l.D.SetPrefix(cyan + l.D.Prefix() + end)
@@ -55,9 +60,11 @@ func New() (l *Loga) {
 		l.W.SetPrefix(yellow + l.W.Prefix() + end)
 		l.E.SetPrefix(red + l.E.Prefix() + end)
 	}
+
 	if strings.TrimSpace(strings.ToLower(os.Getenv("LOGGER"))) != "" {
 		l.SetLevel(strings.TrimSpace(strings.ToLower(os.Getenv("LOGGER"))))
 	}
+
 	return
 }
 
@@ -70,6 +77,7 @@ func SetLevel(s string) {
 	if strings.TrimSpace(strings.ToLower(os.Getenv("LOGGER"))) != "" {
 		return
 	}
+
 	l.SetLevel(s)
 }
 
@@ -87,21 +95,25 @@ func (l *Loga) SetLevel(s string) {
 	l.i = true
 	l.w = true
 	l.e = true
+
 	switch s {
-	case "debug":
-		l.t = false
-	case "info":
-		l.t = false
-		l.d = false
-	case "warn":
-		l.t = false
-		l.d = false
-		l.i = false
-	case "error":
-		l.t = false
-		l.d = false
-		l.i = false
-		l.w = false
+		case "debug":
+			l.t = false
+
+		case "info":
+			l.t = false
+			l.d = false
+
+		case "warn":
+			l.t = false
+			l.d = false
+			l.i = false
+
+		case "error":
+			l.t = false
+			l.d = false
+			l.i = false
+			l.w = false
 	}
 }
 
@@ -119,6 +131,7 @@ func (l *Loga) GetLevel() (s string) {
 	} else if l.w {
 		return "warn"
 	}
+
 	return "error"
 }
 
